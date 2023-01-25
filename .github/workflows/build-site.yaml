@@ -42,6 +42,10 @@ jobs:
           repository: emscripten-core/emsdk
           path: emsdk/
 
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
       - name: Install EMSDK
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
         run: emsdk/emsdk install ${EMSDK_VERSION}
