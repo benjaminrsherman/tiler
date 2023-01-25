@@ -48,7 +48,9 @@ jobs:
 
       - name: Install EMSDK
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
-        run: emsdk/emsdk install ${EMSDK_VERSION}
+        run: |
+          set -x
+          source emsdk/emsdk install ${EMSDK_VERSION}
 
       - name: Build Rust package
         run: |
