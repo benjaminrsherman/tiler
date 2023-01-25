@@ -31,7 +31,7 @@ jobs:
         with:
           paths: |
             ~/emsdk
-          key: ${{ runner.os }}-emsdk-${{ EMSDK_VERSION }}
+          key: ${{ runner.os }}-emsdk-${EMSDK_VERSION}
 
       - name: Checkout EMSDK
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
@@ -78,7 +78,7 @@ jobs:
         with:
           paths: |
             ~/.local/share/godot/templates
-          key: godot_templates-${{ GODOT_VERSION }}
+          key: godot_templates-${GODOT_VERSION}
 
       - name: Setup templates
         if: steps.cache-template.outputs.cache-hit != 'true'

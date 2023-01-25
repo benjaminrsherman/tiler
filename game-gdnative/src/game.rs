@@ -1,4 +1,7 @@
-use gdnative::{api::MenuButton, prelude::*};
+use gdnative::{
+    api::{AcceptDialog, MenuButton},
+    prelude::*,
+};
 
 use crate::puzzle::Puzzle;
 
@@ -8,6 +11,7 @@ use super::util;
 #[inherit(Node2D)]
 pub struct Main {
     puzzle_node: Option<Ref<Node2D>>,
+    alert: Option<Ref<AcceptDialog>>,
 }
 
 #[methods]
@@ -20,6 +24,13 @@ impl Main {
         self.register_validate_callback(base, ui, "_on_validate_requested");
 
         self._on_puzzle_selected(base.as_ref(), 0);
+
+        let alert = AcceptDialog::new();
+        alert.set_title("lmao u thought");
+        alert.set_text("ELi didn't let me write the code for this before I finished 500 puzzles");
+        let alert = alert.into_shared();
+        base.add_child(alert, false);
+        self.alert = Some(alert);
     }
 
     #[method]
@@ -43,14 +54,17 @@ impl Main {
     }
 
     #[method]
-    fn _on_validate_requested(&self, #[base] _base: &Node2D) {
-        godot_dbg!("validate requested");
+    fn _on_validate_requested(&self) {
+        unsafe { self.alert.unwrap().assume_safe() }.popup_centered_minsize(Vector2::ZERO);
     }
 }
 
 impl Main {
     fn new(_base: &Node2D) -> Self {
-        Main { puzzle_node: None }
+        Main {
+            puzzle_node: None,
+            alert: None,
+        }
     }
 
     fn get_ui(&self, base: TRef<Node2D>) -> TRef<CanvasLayer> {
