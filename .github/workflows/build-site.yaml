@@ -42,7 +42,7 @@ jobs:
           repository: emscripten-core/emsdk
           path: emsdk/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v2
 
       - name: Install EMSDK
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
