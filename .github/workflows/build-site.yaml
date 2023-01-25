@@ -1,0 +1,108 @@
+name: Build Web Game
+
+on: push
+
+env:
+  GODOT_ERSION: 3.5.1
+  EMSDK_VERSION: 3.1.30
+
+jobs:
+  build-rust:
+    runs-on: ubuntu-latest
+    container:
+      image: rust/alpine
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache Rust Dependencies
+        uses: actions/cache@v3
+        with:
+          paths: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/git/db/
+            game-gdnative/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache EMSDK
+        uses: actions/cache@v3
+        id: cache-emsdk
+        with:
+          paths: |
+            ~/emsdk
+          key: ${{ runner.os }}-emsdk-${{ EMSDK_VERSION }}
+
+      - name: Checkout EMSDK
+        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with:
+          repository: emscripten-core/emsdk
+          path: ~/emsdk
+
+      - name: Install EMSDK
+        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        run: ~/emsdk/emsdk install ${EMSDK_VERSION}
+
+      - name: Build Rust package
+        run: |
+        ~/emsdk/emsdk activate ${EMSDK_VERSION}
+        cd game-gdnative
+        cargo +nightly build --target=wasm32-unknown-emscripten --release
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: rust-wasm
+          path: target/wasm32-unknown-emscripten/release/game_gdnative.wasm
+    
+  build-game:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:3.5.1
+    needs: build-rust
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+      
+      - name: Download Rust Build
+        uses: actions/download-artifact@v3
+        with:
+          name: rust-wasm
+          path: game-godot
+
+      - name: Cache Templates
+        uses: actions/cache@v3
+        id: cache-templates
+        with:
+          paths: |
+            ~/.local/share/godot/templates
+          key: godot_templates-${{ GODOT_VERSION }}
+
+      - name: Setup templates
+        if: steps.cache-template.outputs.cache-hit != 'true'
+        run: |
+          mkdir -v -p ~/.local/share/godot/templates
+          mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+      
+      - name: Build Site
+        run: |
+          mkdir -v -p build/web
+          godot -v --export HTML5 --path game-godot build/web/index.html
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: web
+          path: build/web
+
+      - name: Install rsync 📚
+        run: |
+          apt-get update && apt-get install -y rsync
+
+      - name: Deploy to GitHub Pages 🚀
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: build/web # The folder the action should deploy.
