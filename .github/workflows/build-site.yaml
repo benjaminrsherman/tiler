@@ -48,11 +48,11 @@ jobs:
 
       - name: Install EMSDK
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
-        run: python3 emsdk/emsdk.py install ${EMSDK_VERSION}
+        run: emsdk/emsdk install ${EMSDK_VERSION}
 
       - name: Build Rust package
         run: |
-          python3 emsdk/emsdk.py activate ${EMSDK_VERSION}
+          emsdk/emsdk activate ${EMSDK_VERSION}
           cd repo/game-gdnative
           cargo +nightly build --target=wasm32-unknown-emscripten --release
 
