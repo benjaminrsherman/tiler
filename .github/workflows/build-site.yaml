@@ -14,6 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          path: repo/
 
       - name: Cache Rust Dependencies
         uses: actions/cache@v3
@@ -22,7 +24,7 @@ jobs:
             ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/git/db/
-            game-gdnative/target/
+            repo/game-gdnative/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache EMSDK
@@ -30,7 +32,7 @@ jobs:
         id: cache-emsdk
         with:
           path: |
-            ~/emsdk
+            emsdk/
           key: ${{ runner.os }}-emsdk-${EMSDK_VERSION}
 
       - name: Checkout EMSDK
@@ -38,16 +40,16 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: emscripten-core/emsdk
-          path: ~/emsdk
+          path: emsdk/
 
       - name: Install EMSDK
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
-        run: ~/emsdk/emsdk install ${EMSDK_VERSION}
+        run: emsdk/emsdk install ${EMSDK_VERSION}
 
       - name: Build Rust package
         run: |
-          ~/emsdk/emsdk activate ${EMSDK_VERSION}
-          cd game-gdnative
+          emsdk/emsdk activate ${EMSDK_VERSION}
+          cd repo/game-gdnative
           cargo +nightly build --target=wasm32-unknown-emscripten --release
 
       - uses: actions/upload-artifact@v3
