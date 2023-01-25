@@ -48,11 +48,11 @@ jobs:
 
       - name: Install EMSDK
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
-        run: emsdk/emsdk install ${EMSDK_VERSION}
+        run: python emsdk/emsdk.py install ${EMSDK_VERSION}
 
       - name: Build Rust package
         run: |
-          emsdk/emsdk activate ${EMSDK_VERSION}
+          python emsdk/emsdk.py activate ${EMSDK_VERSION}
           cd repo/game-gdnative
           cargo +nightly build --target=wasm32-unknown-emscripten --release
 
@@ -97,18 +97,14 @@ jobs:
           mkdir -v -p build/web
           godot -v --export HTML5 --path game-godot build/web/index.html
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v1
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+
+      - name: Upload Site
+        uses: actions/upload-pages-artifact@v1
         with:
-          name: web
           path: build/web
 
-      - name: Install rsync 📚
-        run: |
-          apt-get update && apt-get install -y rsync
-
-      - name: Deploy to GitHub Pages 🚀
-        uses: JamesIves/github-pages-deploy-action@releases/v4
-        with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: build/web # The folder the action should deploy.
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
