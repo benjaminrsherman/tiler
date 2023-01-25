@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://UI.gdns" type="Script" id=1]
+
+[node name="UI" type="CanvasLayer"]
+script = ExtResource( 1 )
+
+[node name="LevelSelectButton" type="MenuButton" parent="."]
+margin_left = 325.0
+margin_top = 745.0
+margin_right = 475.0
+margin_bottom = 795.0
+text = "Select Puzzle"
+
+[node name="ValidatePuzzleButton" type="Button" parent="."]
+margin_left = 345.0
+margin_top = 725.0
+margin_right = 455.0
+margin_bottom = 750.0
+text = "Validate Puzzle"
