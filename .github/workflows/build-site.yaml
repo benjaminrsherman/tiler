@@ -10,7 +10,7 @@ jobs:
   build-rust:
     runs-on: ubuntu-latest
     container:
-      image: rustlang/rust:nightly-alpine
+      image: rustlang/rust:nightly-bullseye
 
     steps:
       - uses: actions/checkout@v3
@@ -42,9 +42,9 @@ jobs:
           repository: emscripten-core/emsdk
           path: emsdk/
 
-      - name: Install dependencies
-        run: |
-          apk add --no-cache python3 musl-dev
+      #- name: Install dependencies
+      #  run: |
+      #    add-apt
 
       - name: Install EMSDK
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
