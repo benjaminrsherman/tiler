@@ -52,6 +52,7 @@ jobs:
 
       - name: Build Rust package
         run: |
+          set -x
           emsdk/emsdk activate ${EMSDK_VERSION}
           cd repo/game-gdnative
           cargo +nightly build --target=wasm32-unknown-emscripten --release
