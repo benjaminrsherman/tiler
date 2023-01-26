@@ -54,18 +54,18 @@ jobs:
           rustup target add wasm32-unknown-emscripten
 
       - name: Build Rust package
-        shell: bash
         run: |
           set -x
           emsdk/emsdk activate ${EMSDK_VERSION}
-          source emsdk/emsdk_env.sh
+          . emsdk/emsdk_env.sh
           cd repo/game-gdnative
           cargo +nightly build --target=wasm32-unknown-emscripten --release
 
       - uses: actions/upload-artifact@v3
         with:
           name: rust-wasm
-          path: target/wasm32-unknown-emscripten/release/game_gdnative.wasm
+          path: repo/game-gdnative/target/wasm32-unknown-emscripten/release/game_gdnative.wasm
+          if-no-files-found: error
 
   build-game:
     runs-on: ubuntu-latest
