@@ -85,19 +85,8 @@ jobs:
           name: rust-wasm
           path: game-godot
 
-      - name: Cache Templates
-        uses: actions/cache@v3
-        id: cache-templates
-        with:
-          path: |
-            ~/.local/share/godot/templates
-          key: godot_templates-${GODOT_VERSION}
-
       - name: Setup templates
-        if: steps.cache-template.outputs.cache-hit != 'true'
-        run: |
-          mkdir -v -p ~/.local/share/godot/templates
-          mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+        run: mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
 
       - name: Build Site
         run: |
