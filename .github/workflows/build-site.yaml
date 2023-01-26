@@ -3,7 +3,7 @@ name: Build Web Game
 on: push
 
 env:
-  GODOT_ERSION: 3.5.1
+  GODOT_VERSION: 3.5.1
   EMSDK_VERSION: 3.1.30
 
 jobs:
