@@ -45,9 +45,7 @@ jobs:
       #- uses: actions/setup-python@v2
       - name: Install Python
         run: |
-          apt-add-repository ppa:deadsnakes/ppa
-          apt-update
-          apt-install python3.10
+          apk add python3
 
       - name: Install EMSDK
         #if: steps.cache-emsdk.outputs.cache-hit != 'true'
