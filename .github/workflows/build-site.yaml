@@ -54,10 +54,11 @@ jobs:
           rustup target add wasm32-unknown-emscripten
 
       - name: Build Rust package
+        shell: bash
         run: |
           set -x
           emsdk/emsdk activate ${EMSDK_VERSION}
-          . emsdk/emsdk_env.sh
+          source emsdk/emsdk_env.sh
           cd repo/game-gdnative
           cargo +nightly build --target=wasm32-unknown-emscripten --release
 
