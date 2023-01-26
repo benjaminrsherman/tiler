@@ -50,7 +50,7 @@ jobs:
           set -x
           cd emsdk
           pwd
-          file $(which python3)
+          type $(which python3)
           source ./emsdk install ${EMSDK_VERSION}
 
       - name: Build Rust package
