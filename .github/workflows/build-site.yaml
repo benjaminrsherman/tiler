@@ -95,7 +95,6 @@ jobs:
         run: |
           set -x
           ls game-godot
-          godot --version
           mkdir -v -p build/web
           godot -v --export HTML5 --path game-godot build/web/index.html
 
