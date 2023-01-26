@@ -48,8 +48,10 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          rustup target add wasm32-unknown-emscripten
+          apt-get update
+          apt-get install lsb_release apt-add-repository
           bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+          rustup target add wasm32-unknown-emscripten
 
       - name: Build Rust package
         run: |
