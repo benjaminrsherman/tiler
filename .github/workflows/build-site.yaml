@@ -58,7 +58,8 @@ jobs:
           set -x
           emsdk/emsdk activate ${EMSDK_VERSION}
           pwd
-          source emsdk/emsdk_env.sh
+          echo $(pwd)/emsdk/emsdk_env.sh
+          source $(pwd)/emsdk/emsdk_env.sh
           cd repo/game-gdnative
           cargo +nightly build --target=wasm32-unknown-emscripten --release
 
