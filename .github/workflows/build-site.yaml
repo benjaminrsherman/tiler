@@ -42,7 +42,12 @@ jobs:
           repository: emscripten-core/emsdk
           path: emsdk/
 
-      - uses: actions/setup-python@v2
+      #- uses: actions/setup-python@v2
+      - name: Install Python
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt -y update
+          sudo apt install python3.10
 
       - name: Install EMSDK
         #if: steps.cache-emsdk.outputs.cache-hit != 'true'
