@@ -94,6 +94,7 @@ jobs:
       - name: Build Site
         run: |
           mkdir -v -p build/web
+          ls game-godot
           godot -v --export HTML5 --path game-godot build/web/index.html
 
       - name: Setup Pages
