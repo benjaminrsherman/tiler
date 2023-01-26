@@ -17,26 +17,26 @@ jobs:
         with:
           path: repo/
 
-      - name: Cache Rust Dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/git/db/
-            repo/game-gdnative/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      #- name: Cache Rust Dependencies
+      #  uses: actions/cache@v3
+      #  with:
+      #    path: |
+      #      ~/.cargo/bin/
+      #      ~/.cargo/registry/index/
+      #      ~/.cargo/git/db/
+      #      repo/game-gdnative/target/
+      #    key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Cache EMSDK
-        uses: actions/cache@v3
-        id: cache-emsdk
-        with:
-          path: |
-            emsdk/
-          key: ${{ runner.os }}-emsdk-${EMSDK_VERSION}
+      #- name: Cache EMSDK
+      #  uses: actions/cache@v3
+      #  id: cache-emsdk
+      #  with:
+      #    path: |
+      #      emsdk/
+      #    key: ${{ runner.os }}-emsdk-${EMSDK_VERSION}
 
       - name: Checkout EMSDK
-        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        #if: steps.cache-emsdk.outputs.cache-hit != 'true'
         uses: actions/checkout@v3
         with:
           repository: emscripten-core/emsdk
@@ -45,7 +45,7 @@ jobs:
       - uses: actions/setup-python@v2
 
       - name: Install EMSDK
-        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        #if: steps.cache-emsdk.outputs.cache-hit != 'true'
         run: |
           cd emsdk
           ./emsdk install ${EMSDK_VERSION}
@@ -79,16 +79,16 @@ jobs:
           name: rust-wasm
           path: game-godot
 
-      - name: Cache Templates
-        uses: actions/cache@v3
-        id: cache-templates
-        with:
-          path: |
-            ~/.local/share/godot/templates
-          key: godot_templates-${GODOT_VERSION}
+      #- name: Cache Templates
+      #  uses: actions/cache@v3
+      #  id: cache-templates
+      #  with:
+      #    path: |
+      #      ~/.local/share/godot/templates
+      #    key: godot_templates-${GODOT_VERSION}
 
       - name: Setup templates
-        if: steps.cache-template.outputs.cache-hit != 'true'
+        #if: steps.cache-template.outputs.cache-hit != 'true'
         run: |
           mkdir -v -p ~/.local/share/godot/templates
           mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
