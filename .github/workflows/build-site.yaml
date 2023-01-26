@@ -49,7 +49,7 @@ jobs:
       - name: Install build dependencies
         run: |
           apt-get update
-          apt-get install lsb-release apt-add-repository
+          apt-get install lsb-release software-properties-common gnupg
           bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           rustup target add wasm32-unknown-emscripten
 
