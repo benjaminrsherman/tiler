@@ -10,7 +10,7 @@ jobs:
   build-rust:
     runs-on: ubuntu-latest
     container:
-      image: rust:alpine
+      image: rust:nightly-alpine
 
     steps:
       - uses: actions/checkout@v3
