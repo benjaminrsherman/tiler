@@ -4,7 +4,7 @@ on: push
 
 env:
   GODOT_VERSION: 3.5.1
-  EMSDK_VERSION: 3.1.30
+  EMSDK_VERSION: 3.1.21
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
