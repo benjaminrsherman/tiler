@@ -87,17 +87,15 @@ jobs:
 
       - name: Setup templates
         run: |
-          ls /root/.local/share/godot/templates
           mkdir -v -p ~/.local/share/godot/templates
           mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
-          echo $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable
 
       - name: Build Site
         run: |
           set -x
-          ls game-godot
           mkdir -v -p build/web
-          godot -v --export HTML5 --path game-godot build/web/index.html
+          cd game-godot
+          godot -v --export HTML5 ../build/web/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v2
