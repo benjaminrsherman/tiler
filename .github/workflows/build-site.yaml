@@ -39,7 +39,7 @@ jobs:
         with:
           path: |
             emsdk/
-          key: ${{ runner.os }}-emsdk-${EMSDK_VERSION}
+          key: ${{ runner.os }}-emsdk-${{ env.EMSDK_VERSION }}
 
       - name: Checkout EMSDK
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
