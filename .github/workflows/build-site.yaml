@@ -87,6 +87,7 @@ jobs:
 
       - name: Setup templates
         run: |
+          ls /root/.local/share/godot/templates
           mkdir -v -p ~/.local/share/godot/templates
           mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
           echo $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable
