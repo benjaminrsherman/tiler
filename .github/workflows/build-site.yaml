@@ -80,13 +80,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Cache Godot Export Templates
+        uses: actions/cache@v3
+        id: cache-export-templates
+        with:
+          path: godot/bin/godot.javascript.opt.gdnative.zip
+          key: ${{ runner.os }}-export-templates-${{ env.GODOT_VERSION }}-${{ env.EMSDK_VERSION }}
+
       - uses: actions/checkout@v3
+        if: steps.cache-export-templates.outputs.cache-hit != 'true'
         with:
           repository: godotengine/godot
           path: godot/
           ref: ${{ env.GODOT_VERSION }}-stable
 
       - name: Cache EMSDK
+        if: steps.cache-export-templates.outputs.cache-hit != 'true'
         uses: actions/cache@v3
         id: cache-emsdk
         with:
@@ -95,19 +104,21 @@ jobs:
           key: ${{ runner.os }}-emsdk-${{ env.EMSDK_VERSION }}
 
       - name: Checkout EMSDK
-        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        if: (steps.cache-emsdk.outputs.cache-hit != 'true') && (steps.cache-export-templates.outputs.cache-hit != 'true')
         uses: actions/checkout@v3
         with:
           repository: emscripten-core/emsdk
           path: emsdk/
 
       - name: Install EMSDK
-        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        if: (steps.cache-emsdk.outputs.cache-hit != 'true') && (steps.cache-export-templates.outputs.cache-hit != 'true')
         run: emsdk/emsdk install ${EMSDK_VERSION}
 
       - uses: actions/setup-python@v4
+        if: steps.cache-export-templates.outputs.cache-hit != 'true'
 
       - name: Setup scons
+        if: steps.cache-export-templates.outputs.cache-hit != 'true'
         shell: bash
         run: |
           python -c "import sys; print(sys.version)"
@@ -115,6 +126,7 @@ jobs:
           scons --version
 
       - name: Build Export Template
+        if: steps.cache-export-templates.outputs.cache-hit != 'true'
         run: |
           emsdk/emsdk activate ${EMSDK_VERSION}
           source emsdk/emsdk_env.sh
