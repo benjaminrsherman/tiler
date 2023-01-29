@@ -76,27 +76,70 @@ jobs:
           path: repo/game-gdnative/target/wasm32-unknown-emscripten/release/game_gdnative.wasm
           if-no-files-found: error
 
+  build-export-templates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: godotengine/godot
+          path: godot/
+          ref: ${{ env.GODOT_VERSION }}-stable
+
+      - name: Cache EMSDK
+        uses: actions/cache@v3
+        id: cache-emsdk
+        with:
+          path: |
+            emsdk/
+          key: ${{ runner.os }}-emsdk-${{ env.EMSDK_VERSION }}
+
+      - name: Checkout EMSDK
+        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with:
+          repository: emscripten-core/emsdk
+          path: emsdk/
+
+      - name: Install EMSDK
+        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        run: emsdk/emsdk install ${EMSDK_VERSION}
+
+      - name: Build Export Template
+        run: |
+          emsdk/emsdk activate ${EMSDK_VERSION}
+          source emsdk/emsdk_env.sh
+          cd godot/
+          scons platform=javascript tools=no gdnative_enabled=yes target=release
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: godot-export-template
+          path: godot/bin/godot.javascript.opt.gdnative.zip
+          if-no-files-found: error
+
   build-game:
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:3.5.1
-    needs: build-rust
+    needs:
+      - build-rust
+      - build-export-templates
 
     steps:
       - uses: actions/checkout@v3
         with:
           lfs: true
 
-      - name: Download Rust Build
-        uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v3
         with:
           name: rust-wasm
           path: game-godot
 
-      - name: Setup templates
-        run: |
-          mkdir -v -p ~/.local/share/godot/templates
-          mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+      - uses: actions/download-artifact@v3
+        with:
+          name: godot-export-template
+          path: game-godot
 
       - name: Build Site
         run: |
