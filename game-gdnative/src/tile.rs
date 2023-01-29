@@ -131,8 +131,9 @@ impl Tile {
 
         let collision_shape = CollisionShape2D::new();
         let rectangle = RectangleShape2D::new();
-        rectangle.set_extents(TILE_SIZE);
+        rectangle.set_extents(TILE_SIZE / 2.0);
         collision_shape.set_shape(rectangle);
+        collision_shape.set_position(TILE_SIZE / 2.0);
         instance.base().add_child(collision_shape, false);
 
         instance
