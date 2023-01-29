@@ -105,6 +105,15 @@ jobs:
         if: steps.cache-emsdk.outputs.cache-hit != 'true'
         run: emsdk/emsdk install ${EMSDK_VERSION}
 
+      - uses: actions/setup-python@v4
+
+      - name: Setup scons
+        shell: bash
+        run: |
+          python -c "import sys; print(sys.version)"
+          python -m pip install scons
+          scons --version
+
       - name: Build Export Template
         run: |
           emsdk/emsdk activate ${EMSDK_VERSION}
