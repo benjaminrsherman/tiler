@@ -1,4 +1,4 @@
-name: Intro 1
+name: Intro 2
 shapes:
   - interactable: false
     pos: [4, 4]
@@ -13,9 +13,5 @@ shapes:
 
   - tiles:
       - pos: [0, 0]
-
-  - tiles:
-      - pos: [0, 0]
-
-  - tiles:
-      - pos: [0, 0]
+      - pos: [0, -1]
+      - pos: [1, 0]

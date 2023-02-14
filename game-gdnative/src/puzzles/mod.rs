@@ -10,8 +10,9 @@ pub struct PuzzleDefinition {
 
 #[derive(Debug, Deserialize)]
 pub struct ShapeDefinition {
-    #[serde(deserialize_with = "deserialize_vector2")]
-    pub pos: Vector2,
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_vector2")]
+    pub pos: Option<Vector2>,
     #[serde(default = "bool_true")]
     pub interactable: bool,
     pub tiles: Vec<TileDefinition>,
@@ -30,6 +31,13 @@ where
     D: Deserializer<'de>,
 {
     <(f32, f32)>::deserialize(deserializer).map(|(x, y)| Vector2 { x, y })
+}
+
+fn deserialize_optional_vector2<'de, D>(deserializer: D) -> Result<Option<Vector2>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    <(f32, f32)>::deserialize(deserializer).map(|(x, y)| Some(Vector2 { x, y }))
 }
 
 fn bool_true() -> bool {

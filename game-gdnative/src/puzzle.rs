@@ -1,8 +1,8 @@
 use gdnative::prelude::*;
 
-use super::shape::Shape;
+use super::shape::{Shape, GLOBAL_GRID_SNAP};
 
-use crate::puzzles::PuzzleDefinition;
+use crate::{puzzles::PuzzleDefinition, tile::TILE_SIDE_LEN};
 include!(concat!(env!("OUT_DIR"), "/puzzle_definitions.rs"));
 
 #[derive(NativeClass)]
@@ -24,7 +24,15 @@ impl Puzzle {
             shapes: puzzle
                 .shapes
                 .iter()
-                .map(Shape::from_definition)
+                .scan(GLOBAL_GRID_SNAP, |tl_pos, shape_def| {
+                    let (shape, height) = Shape::from_definition(*tl_pos, shape_def);
+
+                    if shape_def.pos.is_none() {
+                        *tl_pos += Vector2::new(0f32, height.y * TILE_SIDE_LEN * 1.1);
+                    }
+
+                    Some(shape)
+                })
                 .map(Instance::into_shared)
                 .collect(),
         }
@@ -43,7 +51,7 @@ impl Puzzle {
         instance
     }
 
-    pub fn validate(&self, base: TRef<Node2D>) -> bool {
+    pub fn validate(&self, _base: TRef<Node2D>) -> bool {
         self.shapes.iter().all(|shape| {
             unsafe { shape.assume_safe() }
                 .map(|shape, shape_node| shape.validate(shape_node, &self.shapes))

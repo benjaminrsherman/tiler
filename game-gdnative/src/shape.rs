@@ -17,7 +17,7 @@ pub struct Shape {
     pos: Vector2,
 }
 
-const GLOBAL_GRID_SNAP: Vector2 = Vector2 {
+pub const GLOBAL_GRID_SNAP: Vector2 = Vector2 {
     x: TILE_SIDE_LEN / 10.0,
     y: TILE_SIDE_LEN / 10.0,
 };
@@ -26,7 +26,7 @@ const GLOBAL_GRID_SNAP: Vector2 = Vector2 {
 impl Shape {
     #[method]
     fn _ready(&self, #[base] base: &Node2D) {
-        base.set_position(self.pos * TILE_SIZE);
+        base.set_global_position(self.pos);
     }
 
     #[method]
@@ -51,7 +51,36 @@ impl Shape {
         }
     }
 
-    pub fn from_definition(definition: &ShapeDefinition) -> Instance<Self, Unique> {
+    /// Creates a shape with its top-left cell located at `tl_position`
+    /// Returns the shape and its size in raw tile units
+    pub fn from_definition(
+        tl_position: Vector2,
+        definition: &ShapeDefinition,
+    ) -> (Instance<Self, Unique>, Vector2) {
+        let (top_left, bottom_right) = definition.tiles.iter().fold(
+            (
+                Vector2::new(f32::INFINITY, f32::INFINITY),
+                Vector2::new(f32::NEG_INFINITY, f32::NEG_INFINITY),
+            ),
+            |(top_left, bottom_right), tile| {
+                (
+                    Vector2 {
+                        x: f32::min(top_left.x, tile.pos.x - 0.5),
+                        y: f32::min(top_left.y, tile.pos.y - 0.5),
+                    },
+                    Vector2 {
+                        x: f32::max(bottom_right.x, tile.pos.x + 0.5),
+                        y: f32::max(bottom_right.y, tile.pos.y + 0.5),
+                    },
+                )
+            },
+        );
+
+        let pos = match definition.pos {
+            Some(position) => position * TILE_SIZE,
+            None => tl_position - top_left * TILE_SIZE,
+        };
+
         let instance = Self {
             tiles: definition
                 .tiles
@@ -65,7 +94,7 @@ impl Shape {
                 .map(Instance::into_shared)
                 .collect(),
             drag_pos_start: None,
-            pos: definition.pos,
+            pos,
         }
         .emplace();
 
@@ -79,10 +108,10 @@ impl Shape {
             })
             .unwrap();
 
-        instance
+        (instance, bottom_right - top_left)
     }
 
-    pub fn validate(&self, base: TRef<Node2D>, all_shapes: &[Instance<Shape>]) -> bool {
+    pub fn validate(&self, _base: TRef<Node2D>, all_shapes: &[Instance<Shape>]) -> bool {
         // TODO: tell the tile which shape it's in
 
         self.tiles.iter().all(|tile| {
