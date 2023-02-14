@@ -16,8 +16,8 @@ pub struct Puzzle {
 impl Puzzle {}
 
 impl Puzzle {
-    pub fn from_idx(idx: i64) -> Instance<Self, Unique> {
-        let puzzle = serde_yaml::from_str::<PuzzleDefinition>(&PUZZLES[idx as u64 as usize].1)
+    pub fn from_idx(idx: usize) -> Instance<Self, Unique> {
+        let puzzle = serde_yaml::from_str::<PuzzleDefinition>(&PUZZLES[idx].1)
             .expect("Failed to parse puzzle");
 
         let instance = Self {

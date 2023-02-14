@@ -3,7 +3,7 @@ use gdnative::{
     prelude::*,
 };
 
-use crate::puzzle::Puzzle;
+use crate::puzzle::{Puzzle, PUZZLES};
 
 use super::util;
 
@@ -23,18 +23,16 @@ impl Main {
         self.register_puzzle_select_callback(base, ui, "_on_puzzle_selected");
         self.register_validate_callback(base, ui, "_on_validate_requested");
 
-        self._on_puzzle_selected(base.as_ref(), 0);
+        self._on_puzzle_selected(base.as_ref(), PUZZLES.len() - 1);
 
         let alert = AcceptDialog::new();
-        alert.set_title("lmao u thought");
-        alert.set_text("ELi didn't let me write the code for this before I finished 500 puzzles");
         let alert = alert.into_shared();
         base.add_child(alert, false);
         self.alert = Some(alert);
     }
 
     #[method]
-    fn _on_puzzle_selected(&mut self, #[base] base: &Node2D, puzzle_idx: i64) {
+    fn _on_puzzle_selected(&mut self, #[base] base: &Node2D, puzzle_idx: usize) {
         godot_print!("puzzle selected: {}", puzzle_idx);
 
         if let Some(puzzle) = self.puzzle_node.take() {
