@@ -26,7 +26,7 @@ const TILE_BACKGROUND_COLOR: Color = Color {
     a: 1.0f32,
 };
 
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
 pub enum TileType {
     Foreground,
     Background,
@@ -137,5 +137,58 @@ impl Tile {
         instance.base().add_child(collision_shape, false);
 
         instance
+    }
+
+    pub fn validate(&self, base: TRef<Area2D>, all_shapes: &[Instance<Shape>]) -> bool {
+        let instance = base.cast_instance().unwrap();
+
+        match self.tile_type {
+            TileType::Background => self.validate_background(instance, all_shapes),
+            TileType::Foreground => self.validate_foreground(instance, all_shapes),
+        }
+    }
+
+    fn validate_background(
+        &self,
+        instance: TInstance<Self>,
+        all_shapes: &[Instance<Shape>],
+    ) -> bool {
+        // I am a background tile
+        // I want to confirm that any one foreground tile shares my position
+        // TODO: do i only want a single tile here?
+
+        all_shapes.iter().any(|shape| {
+            unsafe { shape.assume_safe() }
+                .map(|shape, _| {
+                    shape.overlaps_with_tile(instance.clone(), |tile_inst| {
+                        tile_inst
+                            .map(|tile, _| tile.tile_type == TileType::Foreground)
+                            .unwrap_or(false)
+                    })
+                })
+                .unwrap_or(false)
+        })
+    }
+
+    fn validate_foreground(
+        &self,
+        instance: TInstance<Self>,
+        all_shapes: &[Instance<Shape>],
+    ) -> bool {
+        // I am a foreground tile
+        // I want to confirm that any one background tile shares my position
+        // TODO: do i only want a single tile here?
+
+        all_shapes.iter().any(|shape| {
+            unsafe { shape.assume_safe() }
+                .map(|shape, _| {
+                    shape.overlaps_with_tile(instance.clone(), |tile_inst| {
+                        tile_inst
+                            .map(|tile, _| tile.tile_type == TileType::Background)
+                            .unwrap_or(false)
+                    })
+                })
+                .unwrap_or(false)
+        })
     }
 }

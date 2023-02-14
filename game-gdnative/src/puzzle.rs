@@ -42,4 +42,12 @@ impl Puzzle {
 
         instance
     }
+
+    pub fn validate(&self, base: TRef<Node2D>) -> bool {
+        self.shapes.iter().all(|shape| {
+            unsafe { shape.assume_safe() }
+                .map(|shape, shape_node| shape.validate(shape_node, &self.shapes))
+                .unwrap_or(false)
+        })
+    }
 }

@@ -10,7 +10,7 @@ use super::util;
 #[derive(NativeClass)]
 #[inherit(Node2D)]
 pub struct Main {
-    puzzle_node: Option<Ref<Node2D>>,
+    puzzle_node: Option<Instance<Puzzle>>,
     alert: Option<Ref<AcceptDialog>>,
 }
 
@@ -41,12 +41,13 @@ impl Main {
             base.remove_child(puzzle);
         }
 
-        let puzzle = Puzzle::from_idx(puzzle_idx).into_base().into_shared();
-        self.puzzle_node = Some(puzzle);
+        let puzzle = Puzzle::from_idx(puzzle_idx).into_shared();
+        self.puzzle_node = Some(puzzle.clone());
 
         unsafe {
             puzzle
                 .assume_safe()
+                .base()
                 .set_global_position(util::screen_center(base.upcast::<Node>()))
         }
 
@@ -55,7 +56,13 @@ impl Main {
 
     #[method]
     fn _on_validate_requested(&self) {
-        unsafe { self.alert.unwrap().assume_safe() }.popup_centered_minsize(Vector2::ZERO);
+        let valid = unsafe { self.puzzle_node.as_ref().unwrap().assume_safe() }
+            .map(Puzzle::validate)
+            .unwrap_or(false);
+
+        godot_print!("Puzzle validity: {}", valid);
+
+        //unsafe { self.alert.unwrap().assume_safe() }.popup_centered_minsize(Vector2::ZERO);
     }
 }
 

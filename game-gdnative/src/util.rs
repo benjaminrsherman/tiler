@@ -17,3 +17,18 @@ pub fn create_square(side_len: f32, color: Color) -> Ref<Polygon2D, Unique> {
 
     square
 }
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct IVector2 {
+    x: i16,
+    y: i16,
+}
+
+impl From<Vector2> for IVector2 {
+    fn from(vector: Vector2) -> Self {
+        Self {
+            x: vector.x as i16,
+            y: vector.y as i16,
+        }
+    }
+}

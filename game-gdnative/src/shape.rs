@@ -2,6 +2,7 @@ use gdnative::{api::InputEventMouseButton, prelude::*};
 
 use super::tile::{Tile, TileType, TILE_SIDE_LEN, TILE_SIZE};
 use crate::puzzles::ShapeDefinition;
+use crate::util::IVector2;
 
 // Godot Derives
 #[derive(NativeClass, Debug)]
@@ -79,5 +80,33 @@ impl Shape {
             .unwrap();
 
         instance
+    }
+
+    pub fn validate(&self, base: TRef<Node2D>, all_shapes: &[Instance<Shape>]) -> bool {
+        // TODO: tell the tile which shape it's in
+
+        self.tiles.iter().all(|tile| {
+            unsafe { tile.assume_safe() }
+                .map(|tile, tile_node| tile.validate(tile_node, &all_shapes))
+                .unwrap_or(false)
+        })
+    }
+
+    /// Returns true if any tile in this shape matches the filter function and overlaps with `tgt_tile`
+    pub fn overlaps_with_tile<FilterFunc>(
+        &self,
+        tgt_tile: TInstance<Tile>,
+        filter: FilterFunc,
+    ) -> bool
+    where
+        FilterFunc: FnMut(&TInstance<Tile>) -> bool,
+    {
+        let tgt_loc = IVector2::from(tgt_tile.base().global_position());
+
+        self.tiles
+            .iter()
+            .map(|tile_instance| unsafe { tile_instance.assume_safe() })
+            .filter(filter)
+            .any(|tile| IVector2::from(tile.base().global_position()) == tgt_loc)
     }
 }
