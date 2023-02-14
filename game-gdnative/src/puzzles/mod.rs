@@ -10,7 +10,7 @@ pub struct PuzzleDefinition {
 
 #[derive(Debug, Deserialize)]
 pub struct ShapeDefinition {
-    #[serde(deserialize_with = "deserialize_Vector2")]
+    #[serde(deserialize_with = "deserialize_vector2")]
     pub pos: Vector2,
     #[serde(default = "bool_true")]
     pub interactable: bool,
@@ -19,13 +19,13 @@ pub struct ShapeDefinition {
 
 #[derive(Debug, Deserialize)]
 pub struct TileDefinition {
-    #[serde(deserialize_with = "deserialize_Vector2")]
+    #[serde(deserialize_with = "deserialize_vector2")]
     pub pos: Vector2,
     #[serde(default)]
     pub tile_type: Option<TileType>,
 }
 
-fn deserialize_Vector2<'de, D>(deserializer: D) -> Result<Vector2, D::Error>
+fn deserialize_vector2<'de, D>(deserializer: D) -> Result<Vector2, D::Error>
 where
     D: Deserializer<'de>,
 {
