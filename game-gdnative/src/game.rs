@@ -58,9 +58,17 @@ impl Main {
             .map(Puzzle::validate)
             .unwrap_or(false);
 
-        godot_print!("Puzzle validity: {}", valid);
+        let alert = unsafe { self.alert.unwrap().assume_safe() };
 
-        //unsafe { self.alert.unwrap().assume_safe() }.popup_centered_minsize(Vector2::ZERO);
+        if valid {
+            alert.set_title("Congratulations!");
+            alert.set_text("Your solution is valid.");
+        } else {
+            alert.set_title("Uh oh!");
+            alert.set_text("There's an issue with your solution :(");
+        }
+
+        alert.popup_centered_minsize(Vector2::ZERO);
     }
 }
 
