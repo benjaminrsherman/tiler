@@ -5,7 +5,7 @@ fn main() {
     let out_dir = std::env::var("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("puzzle_definitions.rs");
 
-    let puzzles = fs::read_dir("src/puzzles")
+    let mut puzzles = fs::read_dir("src/puzzles")
         .unwrap()
         .filter_map(|raw_path| {
             let rel_path = raw_path.as_ref().unwrap().path();
@@ -27,6 +27,8 @@ fn main() {
             }
         })
         .collect::<Vec<(String, String)>>();
+
+    puzzles.sort_by_cached_key(|(puzzle_name, _)| puzzle_name.clone());
 
     std::fs::write(
         &dest_path,
