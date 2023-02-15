@@ -20,12 +20,22 @@ impl Puzzle {
         let puzzle = serde_yaml::from_str::<PuzzleDefinition>(&PUZZLES[idx].1)
             .expect("Failed to parse puzzle");
 
+        let shape_colors = colorgrad::warm().colors(puzzle.shapes.len());
+
         let instance = Self {
             shapes: puzzle
                 .shapes
                 .iter()
-                .scan(GLOBAL_GRID_SNAP, |tl_pos, shape_def| {
-                    let (shape, height) = Shape::from_definition(*tl_pos, shape_def);
+                .zip(shape_colors.iter())
+                .scan(GLOBAL_GRID_SNAP, |tl_pos, (shape_def, raw_color)| {
+                    let shape_color = Color {
+                        r: raw_color.r as f32,
+                        b: raw_color.b as f32,
+                        g: raw_color.g as f32,
+                        a: raw_color.a as f32,
+                    };
+
+                    let (shape, height) = Shape::from_definition(*tl_pos, shape_def, shape_color);
 
                     if shape_def.pos.is_none() {
                         *tl_pos += Vector2::new(0f32, height.y * TILE_SIDE_LEN * 1.1);

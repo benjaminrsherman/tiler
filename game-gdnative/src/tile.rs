@@ -41,14 +41,9 @@ impl TileType {
         }
     }
 
-    fn to_foreground_color(&self) -> Color {
+    fn to_foreground_color(&self, shape_color: Color) -> Color {
         match self {
-            TileType::Foreground => Color {
-                r: 0.5f32,
-                g: 0.5f32,
-                b: 0.5f32,
-                a: 1.0f32,
-            },
+            TileType::Foreground => shape_color,
             TileType::Background => Color {
                 r: 0.3f32,
                 g: 0.3f32,
@@ -112,6 +107,7 @@ impl Tile {
     pub fn from_definition(
         definition: &TileDefinition,
         base_type: TileType,
+        shape_color: Color,
     ) -> Instance<Self, Unique> {
         let tile_type = definition.tile_type.unwrap_or(base_type);
 
@@ -124,8 +120,11 @@ impl Tile {
         let bg = util::create_square(TILE_SIDE_LEN, TILE_BACKGROUND_COLOR);
         instance.base().add_child(bg, false);
 
-        let fg =
-            util::create_square(TILE_INNER_SIDE_LEN, tile_type.to_foreground_color()).into_shared();
+        let fg = util::create_square(
+            TILE_INNER_SIDE_LEN,
+            tile_type.to_foreground_color(shape_color),
+        )
+        .into_shared();
         instance.base().add_child(fg, false);
         unsafe { fg.assume_safe() }.set_position(TILE_INNER_OFFSET);
 

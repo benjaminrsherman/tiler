@@ -7,6 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+colorgrad = "0.6.2"
 gdnative = { version = "0.11", features = ["serde"] }
 lazy_static = "1.4.0"
 serde = { version = "1.0.152", features = ["derive"] }

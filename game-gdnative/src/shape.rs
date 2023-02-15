@@ -56,6 +56,7 @@ impl Shape {
     pub fn from_definition(
         tl_position: Vector2,
         definition: &ShapeDefinition,
+        color: Color,
     ) -> (Instance<Self, Unique>, Vector2) {
         let (top_left, bottom_right) = definition.tiles.iter().fold(
             (
@@ -89,6 +90,7 @@ impl Shape {
                     Tile::from_definition(
                         tile_def,
                         TileType::from_interactable(definition.interactable),
+                        color,
                     )
                 })
                 .map(Instance::into_shared)
