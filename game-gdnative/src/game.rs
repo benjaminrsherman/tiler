@@ -23,13 +23,7 @@ impl Main {
         self.register_puzzle_select_callback(base, ui, "_on_puzzle_selected");
         self.register_validate_callback(base, ui, "_on_validate_requested");
 
-        let initial_puzzle_idx = if cfg!(target_arch = "wasm32") {
-            0
-        } else {
-            PUZZLES.len() - 1
-        };
-
-        self._on_puzzle_selected(base.as_ref(), initial_puzzle_idx);
+        self._on_puzzle_selected(base.as_ref(), 0);
 
         let alert = AcceptDialog::new();
         let alert = alert.into_shared();

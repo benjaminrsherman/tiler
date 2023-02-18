@@ -5,6 +5,7 @@ use crate::tile::TileType;
 
 #[derive(Debug, Deserialize)]
 pub struct PuzzleDefinition {
+    pub name: String,
     pub shapes: Vec<ShapeDefinition>,
 }
 

@@ -1,5 +1,7 @@
 use gdnative::{api::MenuButton, prelude::*};
 
+use crate::puzzles::PuzzleDefinition;
+
 include!(concat!(env!("OUT_DIR"), "/puzzle_definitions.rs"));
 
 #[derive(NativeClass)]
@@ -22,9 +24,13 @@ impl UI {
                 .assume_safe()
         };
 
-        PUZZLES.iter().for_each(|(name, _)| {
-            popup_menu.add_item(name, 0, 0);
-        });
+        PUZZLES
+            .into_iter()
+            .map(serde_yaml::from_str::<PuzzleDefinition>)
+            .filter_map(|p| p.ok())
+            .for_each(|puzzle| {
+                popup_menu.add_item(puzzle.name, 0, 0);
+            });
     }
 }
 

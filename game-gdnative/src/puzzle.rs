@@ -17,7 +17,7 @@ impl Puzzle {}
 
 impl Puzzle {
     pub fn from_idx(idx: usize) -> Instance<Self, Unique> {
-        let puzzle = serde_yaml::from_str::<PuzzleDefinition>(&PUZZLES[idx].1)
+        let puzzle = serde_yaml::from_str::<PuzzleDefinition>(&PUZZLES[idx])
             .expect("Failed to parse puzzle");
 
         let shape_colors = colorgrad::warm().colors(puzzle.shapes.len());
