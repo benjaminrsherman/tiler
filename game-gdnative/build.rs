@@ -1,29 +1,38 @@
-use std::fs;
-use std::path::Path;
+use std::ffi::OsString;
+use std::path::{Path, PathBuf};
+use std::time::SystemTime;
+
+use walkdir::WalkDir;
+
+fn modified_time(direntry: &walkdir::DirEntry) -> SystemTime {
+    direntry
+        .metadata()
+        .ok()
+        .and_then(|metadata| metadata.modified().ok())
+        .unwrap_or(SystemTime::UNIX_EPOCH)
+}
 
 fn main() {
     let out_dir = std::env::var("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("puzzle_definitions.rs");
 
-    let puzzles = fs::read_dir("src/puzzles")
-        .unwrap()
-        .filter_map(|raw_path| {
-            let rel_path = raw_path.as_ref().unwrap().path();
+    // If we're in CI, default sorting is good
+    // If we're running a local build (i.e. not in CI), sort puzzles by
+    // mtime order to speed up iteration cycles.
+    let files = if std::env::var("CI").unwrap_or("false".to_string()) == "true" {
+        WalkDir::new("src/puzzles")
+    } else {
+        WalkDir::new("src/puzzles").sort_by(|d1, d2| modified_time(d2).cmp(&modified_time(d1)))
+    };
 
-            let fname = raw_path.unwrap().file_name().into_string().unwrap();
-
-            if fname.ends_with(".yaml") {
-                let abspath = fs::canonicalize(rel_path)
-                    .unwrap()
-                    .into_os_string()
-                    .into_string()
-                    .unwrap();
-
-                Some(abspath)
-            } else {
-                None
-            }
-        })
+    let puzzles = files
+        .into_iter()
+        .filter_map(|d| d.ok())
+        .filter(|direntry| direntry.file_type().is_file())
+        .filter_map(|file| file.path().canonicalize().ok())
+        .map(PathBuf::into_os_string)
+        .map(OsString::into_string)
+        .filter_map(|x| x.ok())
         .collect::<Vec<String>>();
 
     std::fs::write(
