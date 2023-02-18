@@ -1,4 +1,4 @@
-use gdnative::{api::InputEventMouseButton, prelude::*};
+use gdnative::{api::*, prelude::*};
 
 use super::tile::{Tile, TileType, TILE_SIDE_LEN, TILE_SIZE};
 use crate::puzzles::ShapeDefinition;
@@ -78,7 +78,10 @@ impl Shape {
         );
 
         let pos = match definition.pos {
-            Some(position) => position * TILE_SIZE,
+            Some(position) => {
+                let win_center = OS::godot_singleton().window_size() / 2.0;
+                win_center + position * TILE_SIZE
+            }
             None => tl_position - top_left * TILE_SIZE,
         };
 

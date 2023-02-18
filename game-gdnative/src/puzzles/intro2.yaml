@@ -1,7 +1,7 @@
 name: Intro 2
 shapes:
   - interactable: false
-    pos: [4, 4]
+    pos: [0, 0]
     tiles:
       - pos: [0, 0]
       - pos: [0, -1]
