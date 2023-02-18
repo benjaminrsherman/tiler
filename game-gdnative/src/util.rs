@@ -1,6 +1,8 @@
 use gdnative::api::*;
 use gdnative::prelude::*;
 
+use crate::puzzles::Position;
+
 pub fn screen_center(node: &Node) -> Vector2 {
     unsafe { node.get_viewport().unwrap().assume_safe().size() / 2.0 }
 }
@@ -29,6 +31,15 @@ impl From<Vector2> for IVector2 {
         Self {
             x: vector.x as i16,
             y: vector.y as i16,
+        }
+    }
+}
+
+impl From<Position> for Vector2 {
+    fn from(pos: Position) -> Self {
+        Self {
+            x: pos.0 as f32,
+            y: pos.1 as f32,
         }
     }
 }

@@ -3,7 +3,7 @@ use gdnative::{
     prelude::*,
 };
 
-use crate::puzzle::{Puzzle, PUZZLES};
+use crate::puzzle::Puzzle;
 
 use super::util;
 

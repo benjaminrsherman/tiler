@@ -9,7 +9,7 @@ use crate::util;
 pub const TILE_SIDE_LEN: f32 = if cfg!(target_arch = "wasm32") {
     30f32
 } else {
-    100f32
+    50f32
 };
 
 pub const TILE_SIZE: Vector2 = Vector2 {
@@ -117,7 +117,7 @@ impl Tile {
         let tile_type = definition.tile_type.unwrap_or(base_type);
 
         let instance = Self {
-            pos: definition.pos,
+            pos: Vector2::from(definition.pos),
             tile_type,
         }
         .emplace();

@@ -1,7 +1,9 @@
-use gdnative::prelude::Vector2;
-use serde::{Deserialize, Deserializer};
+use serde::Deserialize;
 
 use crate::tile::TileType;
+
+#[derive(Debug, Deserialize, Copy, Clone)]
+pub struct Position(pub usize, pub usize);
 
 #[derive(Debug, Deserialize)]
 pub struct PuzzleDefinition {
@@ -9,38 +11,43 @@ pub struct PuzzleDefinition {
     pub shapes: Vec<ShapeDefinition>,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct ShapeDefinition {
-    #[serde(default)]
-    #[serde(deserialize_with = "deserialize_optional_vector2")]
-    pub pos: Option<Vector2>,
-    #[serde(default = "bool_true")]
-    pub interactable: bool,
-    pub tiles: Vec<TileDefinition>,
+#[derive(Debug, Deserialize, Clone)]
+enum Shape {
+    RawTiles(Vec<TileDefinition>),
+    Rect(usize, usize),
 }
 
 #[derive(Debug, Deserialize)]
+pub struct ShapeDefinition {
+    #[serde(default)]
+    pub pos: Option<Position>,
+    #[serde(default = "bool_true")]
+    pub interactable: bool,
+
+    tiles: Shape,
+}
+
+#[derive(Debug, Deserialize, Clone, Copy)]
 pub struct TileDefinition {
-    #[serde(deserialize_with = "deserialize_vector2")]
-    pub pos: Vector2,
+    pub pos: Position,
     #[serde(default)]
     pub tile_type: Option<TileType>,
 }
 
-fn deserialize_vector2<'de, D>(deserializer: D) -> Result<Vector2, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    <(f32, f32)>::deserialize(deserializer).map(|(x, y)| Vector2 { x, y })
-}
-
-fn deserialize_optional_vector2<'de, D>(deserializer: D) -> Result<Option<Vector2>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    <(f32, f32)>::deserialize(deserializer).map(|(x, y)| Some(Vector2 { x, y }))
-}
-
 fn bool_true() -> bool {
     true
+}
+
+impl ShapeDefinition {
+    pub fn get_tiles(&self) -> Vec<TileDefinition> {
+        match self.tiles.clone() {
+            Shape::RawTiles(tiles) => tiles,
+            Shape::Rect(width, height) => itertools::iproduct!(0..width, 0..height)
+                .map(|(x, y)| TileDefinition {
+                    pos: Position(x, y),
+                    tile_type: None,
+                })
+                .collect(),
+        }
+    }
 }

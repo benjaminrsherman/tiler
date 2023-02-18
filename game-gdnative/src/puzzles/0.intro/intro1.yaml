@@ -2,20 +2,16 @@ name: Intro 1
 shapes:
   - interactable: false
     pos: [0, 0]
-    tiles:
-      - pos: [0, 0]
-      - pos: [0, -1]
-      - pos: [-1, -1]
-      - pos: [-1, 0]
+    tiles: !Rect [2, 2]
 
-  - tiles:
+  - tiles: !RawTiles
       - pos: [0, 0]
 
-  - tiles:
+  - tiles: !RawTiles
       - pos: [0, 0]
 
-  - tiles:
+  - tiles: !RawTiles
       - pos: [0, 0]
 
-  - tiles:
+  - tiles: !RawTiles
       - pos: [0, 0]

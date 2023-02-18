@@ -18,8 +18,8 @@ pub struct Shape {
 }
 
 pub const GLOBAL_GRID_SNAP: Vector2 = Vector2 {
-    x: TILE_SIDE_LEN / 10.0,
-    y: TILE_SIDE_LEN / 10.0,
+    x: TILE_SIDE_LEN / 2.0,
+    y: TILE_SIDE_LEN / 2.0,
 };
 
 #[methods]
@@ -58,7 +58,7 @@ impl Shape {
         definition: &ShapeDefinition,
         color: Color,
     ) -> (Instance<Self, Unique>, Vector2) {
-        let (top_left, bottom_right) = definition.tiles.iter().fold(
+        let (top_left, bottom_right) = definition.get_tiles().iter().fold(
             (
                 Vector2::new(f32::INFINITY, f32::INFINITY),
                 Vector2::new(f32::NEG_INFINITY, f32::NEG_INFINITY),
@@ -66,12 +66,12 @@ impl Shape {
             |(top_left, bottom_right), tile| {
                 (
                     Vector2 {
-                        x: f32::min(top_left.x, tile.pos.x - 0.5),
-                        y: f32::min(top_left.y, tile.pos.y - 0.5),
+                        x: f32::min(top_left.x, tile.pos.0 as f32 - 0.5),
+                        y: f32::min(top_left.y, tile.pos.1 as f32 - 0.5),
                     },
                     Vector2 {
-                        x: f32::max(bottom_right.x, tile.pos.x + 0.5),
-                        y: f32::max(bottom_right.y, tile.pos.y + 0.5),
+                        x: f32::max(bottom_right.x, tile.pos.0 as f32 + 0.5),
+                        y: f32::max(bottom_right.y, tile.pos.1 as f32 + 0.5),
                     },
                 )
             },
@@ -80,14 +80,16 @@ impl Shape {
         let pos = match definition.pos {
             Some(position) => {
                 let win_center = OS::godot_singleton().window_size() / 2.0;
-                win_center + position * TILE_SIZE
+                let shape_rel_offset = (bottom_right - top_left) / 2.0;
+
+                win_center + (Vector2::from(position) - shape_rel_offset) * TILE_SIZE
             }
             None => tl_position - top_left * TILE_SIZE,
         };
 
         let instance = Self {
             tiles: definition
-                .tiles
+                .get_tiles()
                 .iter()
                 .map(|tile_def| {
                     Tile::from_definition(

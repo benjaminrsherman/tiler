@@ -33,6 +33,7 @@ fn main() {
         .map(PathBuf::into_os_string)
         .map(OsString::into_string)
         .filter_map(|x| x.ok())
+        .filter(|x| x.ends_with(".yaml"))
         .collect::<Vec<String>>();
 
     std::fs::write(
