@@ -12,13 +12,20 @@ fn modified_time(direntry: &walkdir::DirEntry) -> SystemTime {
         .unwrap_or(SystemTime::UNIX_EPOCH)
 }
 
-fn abspath(path: &Path) -> Option<String> {
-    path.canonicalize()
-        .ok()
+fn abs_path_and_short_name(path: &Path) -> Option<(String, String)> {
+    let abspath = path
+        .canonicalize()
         .map(PathBuf::into_os_string)
         .map(OsString::into_string)
-        .map(|x| x.ok())
-        .unwrap_or_default()
+        .unwrap()
+        .unwrap();
+
+    let full_shortname = path.as_os_str().to_owned().into_string().unwrap();
+
+    match full_shortname.strip_suffix(".yaml") {
+        Some(shortname) => Some((abspath, shortname.to_string())),
+        None => None,
+    }
 }
 
 fn main() {
@@ -38,24 +45,29 @@ fn main() {
         .into_iter()
         .filter_map(|d| d.ok())
         .filter(|direntry| direntry.file_type().is_file())
-        .filter_map(|file| abspath(file.path()))
-        .filter(|x| x.ends_with(".yaml"))
-        .collect::<Vec<String>>();
+        .filter_map(|file| abs_path_and_short_name(file.path()))
+        .collect::<Vec<(String, String)>>();
 
     if std::env::var("CI").unwrap_or("false".to_string()) == "true" {
         puzzles.sort();
     }
 
+    let mut puzzle_map = phf_codegen::Map::new();
+    for (idx, (_, shortname)) in puzzles.iter().enumerate() {
+        puzzle_map.entry(shortname, &format!("{idx}"));
+    }
+
     std::fs::write(
         &dest_path,
         format!(
-            "pub const PUZZLES: [&'static str; {}] = [{}];",
+            "pub const PUZZLES: [&'static str; {}] = [{}]; pub static PUZZLE_NAME_MAP: phf::Map<&'static str, usize> = {};",
             puzzles.len(),
             puzzles
                 .iter()
-                .map(|path| format!("include_str!(\"{path}\")"))
+                .map(|(path, _)| format!("include_str!(\"{path}\")"))
                 .collect::<Vec<_>>()
-                .join(", ")
+                .join(", "),
+            puzzle_map.build()
         ),
     )
     .unwrap();

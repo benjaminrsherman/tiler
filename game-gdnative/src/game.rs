@@ -1,9 +1,10 @@
 use gdnative::{
-    api::{AcceptDialog, MenuButton},
+    api::{AcceptDialog, JavaScript, MenuButton},
     prelude::*,
 };
 
 use crate::puzzle::Puzzle;
+include!(concat!(env!("OUT_DIR"), "/puzzle_definitions.rs"));
 
 use super::util;
 
@@ -23,7 +24,25 @@ impl Main {
         self.register_puzzle_select_callback(base, ui, "_on_puzzle_selected");
         self.register_validate_callback(base, ui, "_on_validate_requested");
 
-        self._on_puzzle_selected(base.as_ref(), 0);
+        let init_puzzle_idx = if cfg!(target_arch = "wasm") {
+            let raw_puzzle_shortname = JavaScript::godot_singleton().eval(
+                "const params = new Proxy(new URLSearchParams(window.location.search), {
+                get: (searchParams, prop) => searchParams.get(prop),
+              });
+              params.puzzle",
+                true,
+            );
+
+            raw_puzzle_shortname
+                .to::<String>()
+                .and_then(|shortname| PUZZLE_NAME_MAP.get(&shortname))
+                .copied()
+        } else {
+            None
+        }
+        .unwrap_or(0);
+
+        self._on_puzzle_selected(base.as_ref(), init_puzzle_idx);
 
         let alert = AcceptDialog::new();
         let alert = alert.into_shared();
