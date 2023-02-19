@@ -26,15 +26,15 @@ impl Main {
 
         let init_puzzle_idx = if cfg!(target_arch = "wasm") {
             let raw_puzzle_shortname = JavaScript::godot_singleton().eval(
-                "const params = new Proxy(new URLSearchParams(window.location.search), {
-                get: (searchParams, prop) => searchParams.get(prop),
-              });
-              params.puzzle",
+                "(new URLSearchParams(window.location.search)).get('puzzle')",
                 true,
             );
 
+            godot_print!("raw_puzzle_shortname: {:?}", raw_puzzle_shortname);
+
             raw_puzzle_shortname
                 .to::<String>()
+                .and_then(|shortname| shortname.strip_suffix("/").map(str::to_string))
                 .and_then(|shortname| PUZZLE_NAME_MAP.get(&shortname))
                 .copied()
         } else {
