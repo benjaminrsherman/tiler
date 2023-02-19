@@ -20,8 +20,7 @@ impl Puzzle {}
 
 impl Puzzle {
     pub fn from_idx(idx: usize) -> Instance<Self, Unique> {
-        let puzzle = serde_yaml::from_str::<PuzzleDefinition>(&PUZZLES[idx])
-            .expect("Failed to parse puzzle");
+        let puzzle = serde_yaml::from_str::<PuzzleDefinition>(&PUZZLES[idx]).unwrap();
 
         let mut shape_colors = colorgrad::warm().colors(puzzle.shapes.len());
         shape_colors.shuffle(&mut ChaCha8Rng::seed_from_u64(puzzle.shapes.len() as u64));
@@ -41,17 +40,24 @@ impl Puzzle {
                             a: raw_color.a as f32,
                         };
 
-                        let (shape, shape_size) =
-                            Shape::from_definition(*tl_pos, shape_def, shape_color);
+                        let shape = if shape_def.interactable {
+                            let (shape, shape_size) =
+                                Shape::from_definition(*tl_pos, shape_def, shape_color);
 
-                        if shape_def.pos.is_none() {
-                            *tl_pos += Vector2::new(
-                                0f32,
-                                shape_size.y * TILE_SIDE_LEN + GLOBAL_GRID_SNAP.y,
-                            );
+                            if shape_def.pos.is_none() {
+                                *tl_pos += Vector2::new(
+                                    0f32,
+                                    shape_size.y * TILE_SIDE_LEN + GLOBAL_GRID_SNAP.y,
+                                );
 
-                            *max_col_width = f32::max(*max_col_width, shape_size.x * TILE_SIDE_LEN);
-                        }
+                                *max_col_width =
+                                    f32::max(*max_col_width, shape_size.x * TILE_SIDE_LEN);
+                            }
+
+                            shape
+                        } else {
+                            Shape::from_definition(GLOBAL_GRID_SNAP, shape_def, shape_color).0
+                        };
 
                         // If we're outside of the window, reset to the next column
                         if tl_pos.y

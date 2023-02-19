@@ -1,6 +1,6 @@
 use gdnative::{api::MenuButton, prelude::*};
 
-use crate::puzzles::PuzzleDefinition;
+use crate::{puzzle::Puzzle, puzzles::PuzzleDefinition};
 
 include!(concat!(env!("OUT_DIR"), "/puzzle_definitions.rs"));
 
@@ -26,8 +26,7 @@ impl UI {
 
         PUZZLES
             .into_iter()
-            .map(serde_yaml::from_str::<PuzzleDefinition>)
-            .filter_map(|p| p.ok())
+            .filter_map(|pdef| serde_yaml::from_str::<PuzzleDefinition>(pdef).ok())
             .for_each(|puzzle| {
                 popup_menu.add_item(puzzle.name, 0, 0);
             });
