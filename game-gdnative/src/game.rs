@@ -38,6 +38,7 @@ impl Main {
                 .and_then(|shortname| PUZZLE_NAME_MAP.get(&shortname))
                 .copied()
         } else {
+            godot_print!("target arch is not wasm32");
             None
         }
         .unwrap_or(0);
