@@ -24,24 +24,16 @@ impl Main {
         self.register_puzzle_select_callback(base, ui, "_on_puzzle_selected");
         self.register_validate_callback(base, ui, "_on_validate_requested");
 
-        let init_puzzle_idx = if cfg!(target_arch = "wasm") {
-            let raw_puzzle_shortname = JavaScript::godot_singleton().eval(
+        let init_puzzle_idx = JavaScript::godot_singleton()
+            .eval(
                 "(new URLSearchParams(window.location.search)).get('puzzle')",
                 true,
-            );
-
-            godot_print!("raw_puzzle_shortname: {:?}", raw_puzzle_shortname);
-
-            raw_puzzle_shortname
-                .to::<String>()
-                .and_then(|shortname| shortname.strip_suffix("/").map(str::to_string))
-                .and_then(|shortname| PUZZLE_NAME_MAP.get(&shortname))
-                .copied()
-        } else {
-            godot_print!("target arch is not wasm32");
-            None
-        }
-        .unwrap_or(0);
+            )
+            .to::<String>()
+            .and_then(|shortname| shortname.strip_suffix("/").map(str::to_string))
+            .and_then(|shortname| PUZZLE_NAME_MAP.get(&shortname))
+            .copied()
+            .unwrap_or(0);
 
         self._on_puzzle_selected(base.as_ref(), init_puzzle_idx);
 
