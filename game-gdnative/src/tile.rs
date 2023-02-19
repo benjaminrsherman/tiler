@@ -6,11 +6,7 @@ use super::shape::Shape;
 use crate::puzzles::TileDefinition;
 use crate::util;
 
-pub const TILE_SIDE_LEN: f32 = if cfg!(target_arch = "wasm32") {
-    30f32
-} else {
-    50f32
-};
+pub const TILE_SIDE_LEN: f32 = 50f32;
 
 pub const TILE_SIZE: Vector2 = Vector2 {
     x: TILE_SIDE_LEN,
