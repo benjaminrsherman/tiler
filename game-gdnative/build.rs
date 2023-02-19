@@ -23,7 +23,10 @@ fn abs_path_and_short_name(path: &Path) -> Option<(String, String)> {
     let full_shortname = path.as_os_str().to_owned().into_string().unwrap();
 
     match full_shortname.strip_suffix(".yaml") {
-        Some(shortname) => Some((abspath, shortname.to_string())),
+        Some(shortname) => Some((
+            abspath,
+            shortname.strip_prefix("src/puzzles/").unwrap().to_string(),
+        )),
         None => None,
     }
 }

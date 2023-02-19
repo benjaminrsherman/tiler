@@ -24,16 +24,18 @@ impl Main {
         self.register_puzzle_select_callback(base, ui, "_on_puzzle_selected");
         self.register_validate_callback(base, ui, "_on_validate_requested");
 
-        let raw_puzzle_shortname = JavaScript::godot_singleton().eval(
-            "(new URLSearchParams(window.location.search)).get('puzzle')",
-            true,
-        );
-
-        godot_print!("raw_puzzle_shortname is {:?}", raw_puzzle_shortname);
-
-        let init_puzzle_idx = raw_puzzle_shortname
+        let init_puzzle_idx = JavaScript::godot_singleton()
+            .eval(
+                "(new URLSearchParams(window.location.search)).get('puzzle')",
+                true,
+            )
             .to::<String>()
-            .and_then(|shortname| shortname.strip_suffix("/").map(str::to_string))
+            .and_then(|shortname| {
+                shortname
+                    .strip_suffix("/")
+                    .map(str::to_string)
+                    .or(Some(shortname))
+            })
             .and_then(|shortname| PUZZLE_NAME_MAP.get(&shortname))
             .copied()
             .unwrap_or(0);
