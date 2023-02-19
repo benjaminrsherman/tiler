@@ -1,8 +1,10 @@
-use std::ffi::OsString;
-use std::path::{Path, PathBuf};
+use anyhow::Result;
+use std::path::Path;
 use std::time::SystemTime;
 
 use walkdir::WalkDir;
+
+include!("src/puzzles/mod.rs");
 
 fn modified_time(direntry: &walkdir::DirEntry) -> SystemTime {
     direntry
@@ -12,22 +14,27 @@ fn modified_time(direntry: &walkdir::DirEntry) -> SystemTime {
         .unwrap_or(SystemTime::UNIX_EPOCH)
 }
 
-fn abs_path_and_short_name(path: &Path) -> Option<(String, String)> {
-    let abspath = path
-        .canonicalize()
-        .map(PathBuf::into_os_string)
-        .map(OsString::into_string)
+fn puzzle_and_short_name(path: &Path) -> Result<(PuzzleDefinition, String)> {
+    let full_shortname = path
+        .as_os_str()
+        .to_owned()
+        .into_string()
         .unwrap()
-        .unwrap();
+        .strip_prefix("src/puzzles/")
+        .unwrap()
+        .to_string();
 
-    let full_shortname = path.as_os_str().to_owned().into_string().unwrap();
+    let fcontents = std::fs::read_to_string(path)?;
 
-    match full_shortname.strip_suffix(".yaml") {
-        Some(shortname) => Some((
-            abspath,
-            shortname.strip_prefix("src/puzzles/").unwrap().to_string(),
-        )),
-        None => None,
+    if let Some(shortname) = full_shortname.strip_suffix(".yaml") {
+        Ok((serde_yaml::from_str(&fcontents)?, shortname.to_string()))
+    } else if let Some(shortname) = full_shortname.strip_suffix(".txt") {
+        Ok((
+            PuzzleDefinition::from_ascii_art(shortname.to_string(), fcontents),
+            shortname.to_string(),
+        ))
+    } else {
+        Err(anyhow::anyhow!("not a file or unknown extension"))
     }
 }
 
@@ -48,11 +55,11 @@ fn main() {
         .into_iter()
         .filter_map(|d| d.ok())
         .filter(|direntry| direntry.file_type().is_file())
-        .filter_map(|file| abs_path_and_short_name(file.path()))
-        .collect::<Vec<(String, String)>>();
+        .filter_map(|file| puzzle_and_short_name(file.path()).ok())
+        .collect::<Vec<(PuzzleDefinition, String)>>();
 
     if std::env::var("CI").unwrap_or("false".to_string()) == "true" {
-        puzzles.sort();
+        puzzles.sort_by_cached_key(|(_, shortname)| shortname.clone());
     }
 
     let mut puzzle_map = phf_codegen::Map::new();
@@ -67,9 +74,9 @@ fn main() {
             puzzles.len(),
             puzzles
                 .iter()
-                .map(|(path, _)| format!("include_str!(\"{path}\")"))
+                .map(|(puzzle, _)| format!("\"{}\"", serde_yaml::to_string(puzzle).unwrap()))
                 .collect::<Vec<_>>()
-                .join(", "),
+                .join(",\n"),
             puzzle_map.build()
         ),
     )

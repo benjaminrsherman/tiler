@@ -1,23 +1,23 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-use crate::tile::TileType;
+use crate::puzzle::Puzzle;
 
-#[derive(Debug, Deserialize, Copy, Clone)]
+#[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub struct Position(pub usize, pub usize);
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PuzzleDefinition {
     pub name: String,
     pub shapes: Vec<ShapeDefinition>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
-enum Shape {
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum Shape {
     RawTiles(Vec<TileDefinition>),
     Rect(usize, usize),
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ShapeDefinition {
     #[serde(default)]
     pub pos: Option<Position>,
@@ -27,7 +27,13 @@ pub struct ShapeDefinition {
     tiles: Shape,
 }
 
-#[derive(Debug, Deserialize, Clone, Copy)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub enum TileType {
+    Foreground,
+    Background,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub struct TileDefinition {
     pub pos: Position,
     #[serde(default)]
@@ -49,5 +55,11 @@ impl ShapeDefinition {
                 })
                 .collect(),
         }
+    }
+}
+
+impl PuzzleDefinition {
+    pub fn from_ascii_art(name: String, art: String) -> Self {
+        todo!()
     }
 }

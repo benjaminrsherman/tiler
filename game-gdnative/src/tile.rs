@@ -1,9 +1,9 @@
 use gdnative::api::*;
 use gdnative::prelude::*;
-use serde::Deserialize;
 
 use super::shape::Shape;
 use crate::puzzles::TileDefinition;
+pub use crate::puzzles::TileType;
 use crate::util;
 
 pub const TILE_SIDE_LEN: f32 = 50f32;
@@ -26,12 +26,6 @@ const TILE_BACKGROUND_COLOR: Color = Color {
     b: 0.2f32,
     a: 1.0f32,
 };
-
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
-pub enum TileType {
-    Foreground,
-    Background,
-}
 
 impl TileType {
     pub fn from_interactable(interactable: bool) -> Self {
