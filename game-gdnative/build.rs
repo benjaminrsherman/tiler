@@ -70,11 +70,11 @@ fn main() {
     std::fs::write(
         &dest_path,
         format!(
-            "pub const PUZZLES: [&'static str; {}] = [{}]; pub static PUZZLE_NAME_MAP: phf::Map<&'static str, usize> = {};",
+            "use crate::puzzles::*; use Shape::*; pub const PUZZLES: [PuzzleDefinition; {}] = [{}]; pub static PUZZLE_NAME_MAP: phf::Map<&'static str, usize> = {};",
             puzzles.len(),
             puzzles
                 .iter()
-                .map(|(puzzle, _)| format!("\"{}\"", serde_yaml::to_string(puzzle).unwrap()))
+                .map(|(puzzle, _)| format!("{:?}", puzzle))
                 .collect::<Vec<_>>()
                 .join(",\n"),
             puzzle_map.build()

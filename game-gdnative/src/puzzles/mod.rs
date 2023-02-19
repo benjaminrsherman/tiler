@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::puzzle::Puzzle;
-
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub struct Position(pub usize, pub usize);
 
